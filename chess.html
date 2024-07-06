@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chess</title>
+    <link rel="stylesheet" href="chess.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="gameboard"></div>
+
+    <img id="game-image" src="./images/KingsChess.png" alt="Game Image">
+
+    <button id="new-game">New Game</button>
+    <button id="rematch">Rematch</button>
+    
+    <div id="chalkboard">
+        <div id="tally-board">
+            <div id="white-tally">
+                <h2>White</h2>
+                <div id="white-score">0</div>
+            </div>
+            <div id="black-tally">
+                <h2>Black</h2>
+                <div id="black-score">0</div>
+            </div>
+        </div>
+        <p id="info">It is <span id="player"></span>'s go.</p>
+        <p id="info-display"></p>
+    </div>
+
+    <script src="pieces.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById("new-game").addEventListener("click", function() {
+            location.reload();
+        });
+
+        document.getElementById("rematch").addEventListener("click", function() {
+            location.reload();
+        //    createBoard();
+        //    playerGo = 'black'; // Reset to starting player
+        //    playerDisplay.textContent = 'black';
+        //    infoDisplay.textContent = `It is ${playerGo}'s go.`;
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+/* Styling for King's Chess */
+
+body {
+    background-image: url('images/ChessBackground01.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* Gameboard styling */
+#gameboard {
+    margin-left: 750px;
+    margin-top: 290px;
+    width: 520px;
+    height: 520px;
+    background-color: black;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.square {
+    height: 65px;
+    width: 65px;
+    position: relative;
+}
+
+.square svg {
+    height: 48px;
+    width: 48px;
+    margin: 5px;
+    position: relative;
+    z-index: -9;
+}
+
+/* Path styling for SVG elements */
+path {
+    position: relative;
+    z-index: -10;
+}
+
+.piece {
+    position: relative;
+    z-index: 9;
+}
+
+/* Square colors */
+.beige {
+    background-color: rgb(110, 110, 98);
+}
+
+.brown {
+    background-color: rgb(169, 43, 43);
+}
+
+/* Piece colors */
+.black {
+    fill: rgb(0, 0, 0);
+}
+
+.white {
+    fill: rgb(255, 255, 255);
+}
+
+/* Player's turn */
+#info {
+    font-size: 24px;
+    color: white;
+    position: absolute;
+    top: 305px;
+    left: 65px;
+}
+
+/* Winner and Invalid moves */
+#info-display {
+    font-size: 24px;
+    color: white;
+    position: absolute;
+    top: 0px;
+    width: 300px;
+    left: 0px;
+}
+
+/* chalkboard styling */
+#chalkboard {
+    background-image: url('images/blackboard.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 300px;
+    height: 400px;
+    position: absolute;
+    top: 360px;
+    left: 110px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'MedievalSharp', cursive;
+    color: white;
+    text-align: center;
+}
+
+/* Score stlying */
+#tally-board {
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 0px 0 0px;
+    z-index: 15;
+}
+/* Score stlying */
+#white-tally, #black-tally {
+    width: 45%;
+    padding: 0px 0;
+    box-sizing: border-box;
+    border-left: none;
+    border-right: none;
+    z-index: 10;
+    position: relative;
+}
+/* Score stlying */
+#white-tally h2, #black-tally h2 {
+    font-size: 30px;
+    margin-top: 45px;
+}
+/* Score stlying */
+#white-tally h2::after, #black-tally h2::after {
+    content: '';
+    display: block;
+    width: 110%;
+    height: 2px;
+    background-color: white;
+    margin-top: 5px;
+}
+/* Score stlying */
+#black-tally h2::after {
+    margin-left: -10px;
+}
+/* Score stlying */
+#white-score, #black-score {
+    font-size: 25px;
+    white-space: pre-line;
+    font-family: 'MedievalSharp', cursive;
+    margin-top: -10px;
+    z-index: 25;
+    position: relative;
+}
+/* Score stlying */
+#tally-board::after {
+    content: '';
+    position: absolute;
+    top: 60px;
+    bottom: 80px;
+    left: 50%;
+    width: 2px;
+    background-color: white;
+}
+
+/* Button stlying */
+button {
+    background-color: #000000;
+    color: white;
+    border: 2px solid white;
+    padding: 10px 20px;
+    font-family: 'MedievalSharp', cursive;
+    cursor: pointer;
+    border-radius: 15px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s, box-shadow 0.5s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+}
+
+/* Button stlying */
+button:hover {
+    background-color: #202020;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7);
+}
+
+/* Button stlying */
+button:active {
+    background-color: #666666;
+}
+
+/* Button stlying */
+#new-game {
+    display: flex;
+    position: relative;
+    height: 30px;
+    width: 110px;
+    top: -90px;
+    left: 140px;
+    z-index: 20;
+}
+
+/* Button stlying */
+#rematch {
+    display: flex;
+    position: relative;
+    height: 30px;
+    width: 100px;
+    top: -119px;
+    left: 260px;
+    z-index: 20;
+}
+
+/* Header image stlying */
+#game-image {
+    width: 800px;
+    height: auto;
+    position: absolute;
+    top: 20px;
+    left: 60px;
+    transform: rotate(-5deg);
+    transform-origin: center center;
+}
