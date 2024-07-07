@@ -8,6 +8,35 @@ playerDisplay.textContent = 'black'
 let kingMoved = { 'black': false, 'white': false }; // Tracks king for castling
 let rookMoved = { 'black': [false, false], 'white': [false, false] }; // Tracks castles for castling
 
+// Initialize scores
+let whiteScore = 0;
+let blackScore = 0;
+
+// Load scores from localStorage if they exist
+if (localStorage.getItem('whiteScore')) {
+    whiteScore = parseInt(localStorage.getItem('whiteScore'), 10);
+}
+if (localStorage.getItem('blackScore')) {
+    blackScore = parseInt(localStorage.getItem('blackScore'), 10);
+}
+
+// Update the score display
+document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
+
+// Function to convert a number to tally marks and limit to 30
+function convertToTicMarks(score) {
+    const maxMarks = 30;
+    let marks = '';
+    for (let i = 0; i < Math.min(score, maxMarks); i++) {
+        if (i % 5 === 0 && i !== 0) {
+            marks += '\n'; // Add a new line for every 5 marks
+        }
+        marks += '|';
+    }
+    return marks;
+}
+
 // Array for chess board
 const startPieces = [
     rook, knight, bishop, queen, king, bishop, knight, rook,
@@ -261,11 +290,13 @@ function checkForWin() {
     if (!blackKingExists) {
         infoDisplay.innerHTML = "White player wins!";
         allSquares.forEach(square => square.firstChild?.setAttribute('draggable', false));
+        updateScore('white');
     }
 
     if (!whiteKingExists) {
         infoDisplay.innerHTML = "Black player wins!";
         allSquares.forEach(square => square.firstChild?.setAttribute('draggable', false));
+        updateScore('black');
     }
 }
 
@@ -300,7 +331,7 @@ function isPathBlockedRook(startId, targetId) {
     return false;
 }
 
-// Checks if Queenss path is blocked
+// Checks if Queens path is blocked
 function isPathBlockedQueen(startId, targetId) {
     if (Math.abs(startId - targetId) % width === 0 || Math.floor(startId / width) === Math.floor(targetId / width)) {
         return isPathBlockedRook(startId, targetId);
@@ -309,7 +340,7 @@ function isPathBlockedQueen(startId, targetId) {
     }
 }
 
-//  Added function for castling
+// Added function for castling
 function performCastling(kingStart, kingEnd, rookStart, rookEnd) {
     const king = document.querySelector(`[square-id="${kingStart}"]`).firstChild;
     const rook = document.querySelector(`[square-id="${rookStart}"]`).firstChild;
@@ -420,3 +451,46 @@ function inCheck(player, position = null) {
 
     return false;
 }
+
+// Update the score based on the winner
+function updateScore(winner) {
+    if (winner === 'white') {
+        whiteScore++;
+        localStorage.setItem('whiteScore', whiteScore);
+    } else {
+        blackScore++;
+        localStorage.setItem('blackScore', blackScore);
+    }
+    // Display the scores as tic marks or empty if score is 0
+    document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+    document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
+}
+
+// Event listener for the new game button
+document.getElementById("new-game").addEventListener("click", function() {
+    localStorage.setItem('whiteScore', 0);
+    localStorage.setItem('blackScore', 0);
+    location.reload();
+});
+
+// Event listener for the rematch button
+document.getElementById("rematch").addEventListener("click", function() {
+    // Reset the board without resetting the scores
+    gameBoard.innerHTML = '';
+    playerGo = 'black';
+    playerDisplay.textContent = 'black';
+    infoDisplay.textContent = `It is ${playerGo}'s go.`;
+    createBoard();
+
+    // Re-attach event listeners
+    const allSquares = document.querySelectorAll(".square")
+    allSquares.forEach(square => {
+        square.addEventListener('dragstart', dragStart)
+        square.addEventListener('dragover', dragOver)
+        square.addEventListener('drop', dragDrop)
+    });
+
+    // Update the score display
+    document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+    document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
+});
