@@ -96,14 +96,14 @@ path {
     text-align: center;
 }
 
-/* Score stlying */
+/* Score styling */
 #tally-board {
     display: flex;
     justify-content: space-between;
     padding: 0px 0px 0 0px;
     z-index: 15;
 }
-/* Score stlying */
+/* Score styling */
 #white-tally, #black-tally {
     width: 45%;
     padding: 0px 0;
@@ -113,12 +113,12 @@ path {
     z-index: 10;
     position: relative;
 }
-/* Score stlying */
+/* Score styling */
 #white-tally h2, #black-tally h2 {
     font-size: 30px;
     margin-top: 45px;
 }
-/* Score stlying */
+/* Score styling */
 #white-tally h2::after, #black-tally h2::after {
     content: '';
     display: block;
@@ -127,11 +127,11 @@ path {
     background-color: white;
     margin-top: 5px;
 }
-/* Score stlying */
+/* Score styling */
 #black-tally h2::after {
     margin-left: -10px;
 }
-/* Score stlying */
+/* Score styling */
 #white-score, #black-score {
     font-size: 25px;
     white-space: pre-line;
@@ -140,7 +140,7 @@ path {
     z-index: 25;
     position: relative;
 }
-/* Score stlying */
+/* Score styling */
 #tally-board::after {
     content: '';
     position: absolute;
@@ -151,7 +151,7 @@ path {
     background-color: white;
 }
 
-/* Button stlying */
+/* Button styling */
 button {
     background-color: #000000;
     color: white;
@@ -168,18 +168,18 @@ button {
     justify-content: center; 
 }
 
-/* Button stlying */
+/* Button styling */
 button:hover {
     background-color: #202020;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7);
 }
 
-/* Button stlying */
+/* Button styling */
 button:active {
     background-color: #666666;
 }
 
-/* Button stlying */
+/* Button styling */
 #new-game {
     display: flex;
     position: relative;
@@ -190,7 +190,7 @@ button:active {
     z-index: 20;
 }
 
-/* Button stlying */
+/* Button styling */
 #rematch {
     display: flex;
     position: relative;
@@ -201,7 +201,7 @@ button:active {
     z-index: 20;
 }
 
-/* Header image stlying */
+/* Header image styling */
 #game-image {
     width: 800px;
     height: auto;
@@ -210,4 +210,150 @@ button:active {
     left: 60px;
     transform: rotate(-5deg);
     transform-origin: center center;
+}
+
+/* Media Queries */
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+    body {
+        background-image: url('images/ChessBackground01.png');
+        background-size: 320%;
+        background-repeat: no-repeat;
+        cursor: auto;
+    }
+    #gameboard {
+        margin-left: 200px;
+        margin-top: 680px;
+        width: 600px;
+        height: 600px;
+    }
+    .square {
+        height: 75px;
+        width: 75px;
+    }
+    #chalkboard {
+        width: 280px;
+        height: 390px;
+        top: 280px;
+        left: 210px;
+    }
+    #info {
+        font-size: 26px;
+        top: 280px;
+        left: 60px;
+    }
+    #info-display {
+        font-size: 26px;
+        top: -5px;
+        left: 0px;
+    }
+    /* Button styling */
+    #rematch {
+        display: flex;
+        position: relative;
+        height: 35px;
+        width: 110px;
+        top: -695px;
+        left: 350px;
+        z-index: 20;
+        font-size: 15px;
+    }
+    /* Button styling */
+    #new-game {
+        display: flex;
+        position: relative;
+        height: 35px;
+        width: 120px;
+        top: -660px;
+        left: 220px;
+        z-index: 20;
+        font-size: 15px;
+    }
+    /* Header image styling */
+    #game-image {
+        width: 700px;
+        height: auto;
+        position: absolute;
+        top: 80px;
+        left: 160px;
+        transform: rotate(-5deg);
+        transform-origin: center center;
+    }
+}
+
+/*Phones (max-width: 480px) */
+@media (max-width: 480px) {
+    body {
+        background-image: url('images/ChessBackground01.png');
+        background-size: 1100%;
+        background-repeat: no-repeat;
+        cursor: auto;
+    }
+    #gameboard {
+        margin-left: 65px;
+        margin-top: 740px;
+        width: 640px;
+        height: 640px;
+    }
+    .square {
+        height: 80px;
+        width: 80px;
+        position: relative;
+    }
+    .square svg {
+        height: 60px;
+        width: 60px;
+        margin: 10px;
+    }
+    #chalkboard {
+        width: 300px;
+        height: 400px;
+        top: 320px;
+        left: 240px;
+    }
+    #info {
+        font-size: 26px;
+        top: 300px;
+        left: 60px;
+    }
+    #info-display {
+        font-size: 26px;
+        top: -5px;
+        left: 0px;
+    }
+    /* Button styling */
+    #new-game {
+        display: flex;
+        position: relative;
+        height: 35px;
+        width: 120px;
+        top: -702px;
+        left: 260px;
+        z-index: 20;
+        font-size: 15px;
+    }
+
+    /* Button styling */
+    #rematch {
+        display: flex;
+        position: relative;
+        height: 35px;
+        width: 110px;
+        top: -738px;
+        left: 390px;
+        z-index: 20;
+        font-size: 15px;
+    }
+
+    /* Header image styling */
+    #game-image {
+        width: 700px;
+        height: auto;
+        position: absolute;
+        top: 30px;
+        left: 60px;
+        transform: rotate(-5deg);
+        transform-origin: center center;
+    }
 }
