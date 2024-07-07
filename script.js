@@ -21,8 +21,21 @@ if (localStorage.getItem('blackScore')) {
 }
 
 // Update the score display
-document.getElementById('white-score').textContent = whiteScore;
-document.getElementById('black-score').textContent = blackScore;
+document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
+
+// Function to convert a number to tally marks and limit to 30
+function convertToTicMarks(score) {
+    const maxMarks = 30;
+    let marks = '';
+    for (let i = 0; i < Math.min(score, maxMarks); i++) {
+        if (i % 5 === 0 && i !== 0) {
+            marks += '\n'; // Add a new line for every 5 marks
+        }
+        marks += '|';
+    }
+    return marks;
+}
 
 // Array for chess board
 const startPieces = [
@@ -448,8 +461,9 @@ function updateScore(winner) {
         blackScore++;
         localStorage.setItem('blackScore', blackScore);
     }
-    document.getElementById('white-score').textContent = whiteScore;
-    document.getElementById('black-score').textContent = blackScore;
+    // Display the scores as tic marks or empty if score is 0
+    document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+    document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
 }
 
 // Event listener for the new game button
@@ -475,4 +489,8 @@ document.getElementById("rematch").addEventListener("click", function() {
         square.addEventListener('dragover', dragOver)
         square.addEventListener('drop', dragDrop)
     });
+
+    // Update the score display
+    document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
+    document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
 });
