@@ -1,12 +1,12 @@
 // script.js: This file contains the logic for the chess game
-const gameBoard = document.querySelector("#gameboard")
-const playerDisplay = document.querySelector('#player')
-const infoDisplay = document.querySelector("#info-display")
-const width = 8
-let playerGo = 'black'
-playerDisplay.textContent = 'black'
+const gameBoard = document.querySelector("#gameboard");
+const playerDisplay = document.querySelector('#player');
+const infoDisplay = document.querySelector("#info-display");
+const width = 8;
+let playerGo = 'black';
+playerDisplay.textContent = 'black';
 let kingMoved = { 'black': false, 'white': false }; // Tracks king for castling
-let rookMoved = { 'black': [false, false], 'white': [false, false] }; // Tracks castles for castling
+let rookMoved = { 'black': [false, false], 'white': [false, false] }; // Tracks rooks for castling
 
 // Initialize scores
 let whiteScore = 0;
@@ -47,7 +47,7 @@ const startPieces = [
     '', '', '', '', '', '', '', '',
     pawn, pawn, pawn, pawn, pawn, pawn, pawn, pawn,
     rook, knight, bishop, queen, king, bishop, knight, rook
-]
+];
 
 // Initializes the chessboard
 function createBoard() {
@@ -82,30 +82,30 @@ function createBoard() {
 }
 
 // Calls create board function
-createBoard()
+createBoard();
 
 // Selects all elements with class square and stores as constant
-const allSquares = document.querySelectorAll(".square")
+const allSquares = document.querySelectorAll(".square");
 
 // Event listeners for drag and drop
 allSquares.forEach(square => {
-    square.addEventListener('dragstart', dragStart)
-    square.addEventListener('dragover', dragOver)
-    square.addEventListener('drop', dragDrop)
-})
+    square.addEventListener('dragstart', dragStart);
+    square.addEventListener('dragover', dragOver);
+    square.addEventListener('drop', dragDrop);
+});
 
-let startPositionId // Variable to store starting piece position ID 
-let draggedElement // Variable to store the dragged element
+let startPositionId; // Variable to store starting piece position ID 
+let draggedElement; // Variable to store the dragged element
 
 // Function to handle the drag start event
 function dragStart(e) {
-    startPositionId = e.target.parentNode.getAttribute('square-id')
-    draggedElement = e.target
+    startPositionId = e.target.parentNode.getAttribute('square-id');
+    draggedElement = e.target;
 }
 
 // Function to handle the drag over event
 function dragOver(e) {
-    e.preventDefault()
+    e.preventDefault();
 }
 
 // Function to handle drop event
@@ -121,11 +121,12 @@ function dragDrop(e) {
         const startId = Number(startPositionId);
         const targetId = Number(e.target.getAttribute('square-id'));
 
+        if (valid === 'castling-right' || valid === 'castling-left') {
+            performCastling(startId, targetId, valid);
+            return;
+        }
+
         if (valid) {
-            if (valid === 'castling-right' || valid === 'castling-left') {
-                performCastling(startId, targetId, valid);
-                return;
-            }
             if (takenByOpponent) {
                 e.target.parentNode.append(draggedElement);
                 e.target.remove();
@@ -155,16 +156,39 @@ function dragDrop(e) {
     }
 }
 
-// Function to track king or rook movement
-function updateKingOrRookMoved(startId, piece) {
-    const row = Math.floor(startId / width);
-    if (piece === 'king') {
-        kingMoved[playerGo] = true;
-    } else if (piece === 'rook') {
-        if (row === 0 || row === 7) {
-            rookMoved[playerGo][startId % width === 0 ? 0 : 1] = true;
-        }
+// Added function for castling
+function performCastling(kingStart, kingEnd, castlingDirection) {
+    let rookStart, rookEnd;
+    if (castlingDirection === 'castling-right') {
+        rookStart = kingStart + 3;
+        rookEnd = kingStart + 1;
+    } else if (castlingDirection === 'castling-left') {
+        rookStart = kingStart - 4;
+        rookEnd = kingStart - 1;
     }
+
+    const king = document.querySelector(`[square-id="${kingStart}"]`).firstChild;
+    const rook = document.querySelector(`[square-id="${rookStart}"]`).firstChild;
+
+    document.querySelector(`[square-id="${kingEnd}"]`).append(king);
+    document.querySelector(`[square-id="${rookEnd}"]`).append(rook);
+
+    kingMoved[playerGo] = true;
+    if (rookStart === 0 || rookStart === 56) {
+        rookMoved[playerGo][0] = true;
+    } else {
+        rookMoved[playerGo][1] = true;
+    }
+
+    checkForWin();
+    changePlayer();
+}
+
+// Function to handle pawn promotion
+function handlePawnPromotion(pawn, targetId) {
+    const team = pawn.firstChild.classList.contains('white') ? 'white' : 'black';
+    pawnToPromote = pawn;
+    showPromotionModal(team, targetId);
 }
 
 // Function to determine valid moves of pieces
@@ -179,6 +203,7 @@ function checkIfValid(target) {
     switch (piece) {
         case 'pawn':
             const starterRow = [8, 9, 10, 11, 12, 13, 14, 15];
+            const promotionRows = [0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63];
             if (
                 (starterRow.includes(startId) && startId + width * 2 === targetId) ||
                 startId + width === targetId ||
@@ -248,12 +273,10 @@ function checkIfValid(target) {
 
             // Castling
             if (!kingMoved[playerGo] && !inCheck(playerGo)) {
-                console.log('Checking castling conditions...');
                 if (targetId === startId + 2 && !rookMoved[playerGo][1] &&
                     !document.querySelector(`[square-id="${startId + 1}"]`)?.firstChild &&
                     !document.querySelector(`[square-id="${startId + 2}"]`)?.firstChild &&
                     !inCheck(playerGo, startId + 1) && !inCheck(playerGo, startId + 2)) {
-                    console.log('Castling right detected');
                     return 'castling-right';
                 }
                 if (targetId === startId - 2 && !rookMoved[playerGo][0] &&
@@ -261,7 +284,6 @@ function checkIfValid(target) {
                     !document.querySelector(`[square-id="${startId - 2}"]`)?.firstChild &&
                     !document.querySelector(`[square-id="${startId - 3}"]`)?.firstChild &&
                     !inCheck(playerGo, startId - 1) && !inCheck(playerGo, startId - 2)) {
-                    console.log('Castling left detected');
                     return 'castling-left';
                 }
             }
@@ -273,27 +295,27 @@ function checkIfValid(target) {
 // Function to change the current player
 function changePlayer() {
     if (playerGo === "black") {
-        reverseIds()
-        playerGo = "white"
-        playerDisplay.textContent = 'white'
+        reverseIds();
+        playerGo = "white";
+        playerDisplay.textContent = 'white';
     } else {
-        revertIds()
-        playerGo = "black"
-        playerDisplay.textContent = 'black'
+        revertIds();
+        playerGo = "black";
+        playerDisplay.textContent = 'black';
     }
 }
 
 // Function to reverse the square IDs
 function reverseIds() {
-    const allSquares = document.querySelectorAll(".square")
+    const allSquares = document.querySelectorAll(".square");
     allSquares.forEach((square, i) =>
-        square.setAttribute('square-id', (width * width - 1) - i))
+        square.setAttribute('square-id', (width * width - 1) - i));
 }
 
 // Function to revert the square IDs
 function revertIds() {
-    const allSquares = document.querySelectorAll(".square")
-    allSquares.forEach((square, i) => square.setAttribute('square-id', i))
+    const allSquares = document.querySelectorAll(".square");
+    allSquares.forEach((square, i) => square.setAttribute('square-id', i));
 }
 
 // Function to check if there is a winner
@@ -360,46 +382,6 @@ function isPathBlockedQueen(startId, targetId) {
     } else {
         return isPathBlockedBishop(startId, targetId);
     }
-}
-
-function performCastling(kingStart, kingEnd, castlingDirection) {
-    let rookStart, rookEnd;
-    if (castlingDirection === 'castling-right') {
-        rookStart = kingStart + 3; // Rook's initial position for castling-right
-        rookEnd = kingStart + 1;   // Rook's new position after castling-right
-    } else if (castlingDirection === 'castling-left') {
-        rookStart = kingStart - 4; // Rook's initial position for castling-left
-        rookEnd = kingStart - 1;   // Rook's new position after castling-left
-    }
-
-    const king = document.querySelector(`[square-id="${kingStart}"]`)?.firstChild;
-    const rook = document.querySelector(`[square-id="${rookStart}"]`)?.firstChild;
-
-    // Debugging logs
-    console.log(`kingStart: ${kingStart}, kingEnd: ${kingEnd}`);
-    console.log(`rookStart: ${rookStart}, rookEnd: ${rookEnd}`);
-    console.log('king:', king);
-    console.log('rook:', rook);
-
-    if (!king || !rook) {
-        console.error('King or Rook not found for castling');
-        return;
-    }
-
-    document.querySelector(`[square-id="${kingEnd}"]`).append(king);
-    document.querySelector(`[square-id="${rookEnd}"]`).append(rook);
-
-    kingMoved[playerGo] = true;
-
-    // Update rookMoved for all four rook starting positions
-    if (rookStart === 0) { // Left rook for black and white
-        rookMoved[playerGo][0] = true;
-    } else if (rookStart === 7) { // Right rook for black and white
-        rookMoved[playerGo][1] = true;
-    }
-
-    checkForWin();
-    changePlayer();
 }
 
 // Checks if King is in check
@@ -526,11 +508,11 @@ document.getElementById("rematch").addEventListener("click", function() {
     createBoard();
 
     // Re-attach event listeners
-    const allSquares = document.querySelectorAll(".square")
+    const allSquares = document.querySelectorAll(".square");
     allSquares.forEach(square => {
-        square.addEventListener('dragstart', dragStart)
-        square.addEventListener('dragover', dragOver)
-        square.addEventListener('drop', dragDrop)
+        square.addEventListener('dragstart', dragStart);
+        square.addEventListener('dragover', dragOver);
+        square.addEventListener('drop', dragDrop);
     });
 
     // Update the score display
