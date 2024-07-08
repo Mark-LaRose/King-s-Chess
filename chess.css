@@ -207,11 +207,35 @@ button:active {
     height: auto;
     position: absolute;
     top: 20px;
-    left: 60px;
+    left: 100px;
     transform: rotate(-5deg);
     transform-origin: center center;
 }
 
+/* Modal styling */
+.promotion-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 100; /* On top */
+    left: 70%;
+    top: 60.40%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    padding: 10px;
+    background-color: rgba(70, 70, 70, 0.8);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.promotion-option {
+    display: relative;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    cursor: pointer;
+    width: 50px; /* Adjust size as needed */
+    height: 50px; /* Adjust size as needed */
+}
 /* Media Queries */
 
 /* Tablet (max-width: 1024px) */
