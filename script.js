@@ -122,6 +122,10 @@ function dragDrop(e) {
         const targetId = Number(e.target.getAttribute('square-id'));
 
         if (valid) {
+            if (valid === 'castling-right' || valid === 'castling-left') {
+                performCastling(startId, targetId, valid);
+                return;
+            }
             if (takenByOpponent) {
                 e.target.parentNode.append(draggedElement);
                 e.target.remove();
@@ -151,10 +155,16 @@ function dragDrop(e) {
     }
 }
 
-function handlePawnPromotion(pawn, targetId) {
-    const team = pawn.firstChild.classList.contains('white') ? 'white' : 'black';
-    pawnToPromote = pawn;
-    showPromotionModal(team, targetId);
+// Function to track king or rook movement
+function updateKingOrRookMoved(startId, piece) {
+    const row = Math.floor(startId / width);
+    if (piece === 'king') {
+        kingMoved[playerGo] = true;
+    } else if (piece === 'rook') {
+        if (row === 0 || row === 7) {
+            rookMoved[playerGo][startId % width === 0 ? 0 : 1] = true;
+        }
+    }
 }
 
 // Function to determine valid moves of pieces
@@ -169,7 +179,6 @@ function checkIfValid(target) {
     switch (piece) {
         case 'pawn':
             const starterRow = [8, 9, 10, 11, 12, 13, 14, 15];
-            const promotionRows = [0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63];
             if (
                 (starterRow.includes(startId) && startId + width * 2 === targetId) ||
                 startId + width === targetId ||
@@ -239,10 +248,12 @@ function checkIfValid(target) {
 
             // Castling
             if (!kingMoved[playerGo] && !inCheck(playerGo)) {
+                console.log('Checking castling conditions...');
                 if (targetId === startId + 2 && !rookMoved[playerGo][1] &&
                     !document.querySelector(`[square-id="${startId + 1}"]`)?.firstChild &&
                     !document.querySelector(`[square-id="${startId + 2}"]`)?.firstChild &&
                     !inCheck(playerGo, startId + 1) && !inCheck(playerGo, startId + 2)) {
+                    console.log('Castling right detected');
                     return 'castling-right';
                 }
                 if (targetId === startId - 2 && !rookMoved[playerGo][0] &&
@@ -250,6 +261,7 @@ function checkIfValid(target) {
                     !document.querySelector(`[square-id="${startId - 2}"]`)?.firstChild &&
                     !document.querySelector(`[square-id="${startId - 3}"]`)?.firstChild &&
                     !inCheck(playerGo, startId - 1) && !inCheck(playerGo, startId - 2)) {
+                    console.log('Castling left detected');
                     return 'castling-left';
                 }
             }
@@ -350,18 +362,39 @@ function isPathBlockedQueen(startId, targetId) {
     }
 }
 
-// Added function for castling
-function performCastling(kingStart, kingEnd, rookStart, rookEnd) {
-    const king = document.querySelector(`[square-id="${kingStart}"]`).firstChild;
-    const rook = document.querySelector(`[square-id="${rookStart}"]`).firstChild;
+function performCastling(kingStart, kingEnd, castlingDirection) {
+    let rookStart, rookEnd;
+    if (castlingDirection === 'castling-right') {
+        rookStart = kingStart + 3; // Rook's initial position for castling-right
+        rookEnd = kingStart + 1;   // Rook's new position after castling-right
+    } else if (castlingDirection === 'castling-left') {
+        rookStart = kingStart - 4; // Rook's initial position for castling-left
+        rookEnd = kingStart - 1;   // Rook's new position after castling-left
+    }
+
+    const king = document.querySelector(`[square-id="${kingStart}"]`)?.firstChild;
+    const rook = document.querySelector(`[square-id="${rookStart}"]`)?.firstChild;
+
+    // Debugging logs
+    console.log(`kingStart: ${kingStart}, kingEnd: ${kingEnd}`);
+    console.log(`rookStart: ${rookStart}, rookEnd: ${rookEnd}`);
+    console.log('king:', king);
+    console.log('rook:', rook);
+
+    if (!king || !rook) {
+        console.error('King or Rook not found for castling');
+        return;
+    }
 
     document.querySelector(`[square-id="${kingEnd}"]`).append(king);
     document.querySelector(`[square-id="${rookEnd}"]`).append(rook);
 
     kingMoved[playerGo] = true;
-    if (rookStart === 0 || rookStart === 56) {
+
+    // Update rookMoved for all four rook starting positions
+    if (rookStart === 0) { // Left rook for black and white
         rookMoved[playerGo][0] = true;
-    } else {
+    } else if (rookStart === 7) { // Right rook for black and white
         rookMoved[playerGo][1] = true;
     }
 
