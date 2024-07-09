@@ -3,8 +3,8 @@ const gameBoard = document.querySelector("#gameboard");
 const playerDisplay = document.querySelector('#player');
 const infoDisplay = document.querySelector("#info-display");
 const width = 8;
-let playerGo = 'black';
-playerDisplay.textContent = 'black';
+let playerGo = localStorage.getItem('lastWinner') === 'white' ? 'black' : 'white'; // Set initial player based on last winner
+playerDisplay.textContent = playerGo;
 let kingMoved = { 'black': false, 'white': false }; // Tracks king for castling
 let rookMoved = { 'black': [false, false], 'white': [false, false] }; // Tracks rooks for castling
 
@@ -79,6 +79,11 @@ function createBoard() {
         square.addEventListener('dragover', dragOver);
         square.addEventListener('drop', dragDrop);
     });
+
+    // Reverse IDs if white is the starting player
+    if (playerGo === "white") {
+        reverseIds();
+    }
 }
 
 // Calls create board function
@@ -204,13 +209,27 @@ function checkIfValid(target) {
         case 'pawn':
             const starterRow = [8, 9, 10, 11, 12, 13, 14, 15];
             const promotionRows = [0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63];
-            if (
-                (starterRow.includes(startId) && startId + width * 2 === targetId) ||
-                startId + width === targetId ||
-                (startId + width - 1 === targetId && document.querySelector(`[square-id="${startId + width - 1}"]`)?.firstChild) ||
-                (startId + width + 1 === targetId && document.querySelector(`[square-id="${startId + width + 1}"]`)?.firstChild)
-            ) {
-                return true;
+            const isWhitePawn = draggedElement.firstChild.classList.contains('white');
+            if (isWhitePawn) {
+                // White pawns can move forward or backward initially
+                if (
+                    (starterRow.includes(startId) && (startId + width * 2 === targetId || startId - width * 2 === targetId)) ||
+                    (startId + width === targetId) ||
+                    (startId + width - 1 === targetId && document.querySelector(`[square-id="${startId + width - 1}"]`)?.firstChild) ||
+                    (startId + width + 1 === targetId && document.querySelector(`[square-id="${startId + width + 1}"]`)?.firstChild)
+                ) {
+                    return true;
+                }
+            } else {
+                // Black pawns move forward only
+                if (
+                    (starterRow.includes(startId) && startId + width * 2 === targetId) ||
+                    startId + width === targetId ||
+                    (startId + width - 1 === targetId && document.querySelector(`[square-id="${startId + width - 1}"]`)?.firstChild) ||
+                    (startId + width + 1 === targetId && document.querySelector(`[square-id="${startId + width + 1}"]`)?.firstChild)
+                ) {
+                    return true;
+                }
             }
             break;
         case 'knight':
@@ -307,6 +326,9 @@ function changePlayer() {
         playerGo = "black";
         playerDisplay.textContent = 'black';
     }
+
+    // Check for pawns in promotion rows
+    checkPromotionRows();
 }
 
 // Function to reverse the square IDs
@@ -320,6 +342,17 @@ function reverseIds() {
 function revertIds() {
     const allSquares = document.querySelectorAll(".square");
     allSquares.forEach((square, i) => square.setAttribute('square-id', i));
+}
+
+// Function to check for pawns in promotion rows
+function checkPromotionRows() {
+    const promotionRows = [0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63];
+    promotionRows.forEach(id => {
+        const square = document.querySelector(`[square-id="${id}"]`);
+        if (square && square.firstChild && square.firstChild.id === 'pawn') {
+            handlePawnPromotion(square.firstChild, id);
+        }
+    });
 }
 
 // Function to check if there is a winner
@@ -339,12 +372,14 @@ function checkForWin() {
         infoDisplay.innerHTML = "White player wins!";
         allSquares.forEach(square => square.firstChild?.setAttribute('draggable', false));
         updateScore('white');
+        localStorage.setItem('lastWinner', 'white'); // Store last winner
     }
 
     if (!whiteKingExists) {
         infoDisplay.innerHTML = "Black player wins!";
         allSquares.forEach(square => square.firstChild?.setAttribute('draggable', false));
         updateScore('black');
+        localStorage.setItem('lastWinner', 'black'); // Store last winner
     }
 }
 
@@ -499,6 +534,7 @@ function updateScore(winner) {
 document.getElementById("new-game").addEventListener("click", function() {
     localStorage.setItem('whiteScore', 0);
     localStorage.setItem('blackScore', 0);
+    localStorage.removeItem('lastWinner');
     location.reload();
 });
 
@@ -506,8 +542,8 @@ document.getElementById("new-game").addEventListener("click", function() {
 document.getElementById("rematch").addEventListener("click", function() {
     // Reset the board without resetting the scores
     gameBoard.innerHTML = '';
-    playerGo = 'black';
-    playerDisplay.textContent = 'black';
+    playerGo = localStorage.getItem('lastWinner') === 'white' ? 'black' : 'white'; // Set initial player based on last winner
+    playerDisplay.textContent = playerGo;
     infoDisplay.textContent = ``;
     createBoard();
 
@@ -522,6 +558,11 @@ document.getElementById("rematch").addEventListener("click", function() {
     // Update the score display
     document.getElementById('white-score').textContent = whiteScore > 0 ? convertToTicMarks(whiteScore) : '';
     document.getElementById('black-score').textContent = blackScore > 0 ? convertToTicMarks(blackScore) : '';
+
+    // Reverse IDs if white is the starting player
+    if (playerGo === "white") {
+        reverseIds();
+    }
 });
 
 // Pawn Promotion Logic
@@ -549,6 +590,7 @@ function handlePromotionChoice(e, targetId) {
     hidePromotionModal();
 }
 
+// Function to promote the pawn and change player
 function promotePawn(pieceType, targetId) {
     if (!pawnToPromote) return;
     const parentSquare = document.querySelector(`[square-id="${targetId}"]`);
@@ -562,7 +604,6 @@ function promotePawn(pieceType, targetId) {
     parentSquare.appendChild(newPiece);
     addDragAndDropListeners(newPiece); // Ensure the promoted piece is capturable
     checkForWin();
-    changePlayer();
 }
 
 function hidePromotionModal() {
