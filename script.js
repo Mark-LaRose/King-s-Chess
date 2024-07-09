@@ -209,24 +209,29 @@ function checkIfValid(target) {
         case 'pawn':
             const starterRow = [8, 9, 10, 11, 12, 13, 14, 15];
             const promotionRows = [0, 1, 2, 3, 4, 5, 6, 7, 56, 57, 58, 59, 60, 61, 62, 63];
-            const isWhitePawn = draggedElement.firstChild.classList.contains('white');
+            const isWhitePawn = draggedElement.classList.contains('white');
+
+            const targetSquare = document.querySelector(`[square-id="${targetId}"]`);
+            const targetSquareMinus1 = document.querySelector(`[square-id="${startId + width - 1}"]`);
+            const targetSquarePlus1 = document.querySelector(`[square-id="${startId + width + 1}"]`);
+
             if (isWhitePawn) {
                 // White pawns can move forward or backward initially
                 if (
-                    (starterRow.includes(startId) && (startId + width * 2 === targetId || startId - width * 2 === targetId)) ||
-                    (startId + width === targetId) ||
-                    (startId + width - 1 === targetId && document.querySelector(`[square-id="${startId + width - 1}"]`)?.firstChild) ||
-                    (startId + width + 1 === targetId && document.querySelector(`[square-id="${startId + width + 1}"]`)?.firstChild)
+                    (starterRow.includes(startId) && startId + width * 2 === targetId && !targetSquare.childElementCount && !document.querySelector(`[square-id="${startId + width}"]`).childElementCount) ||
+                    (startId + width === targetId && !targetSquare.childElementCount) ||
+                    (startId + width - 1 === targetId && targetSquareMinus1 && targetSquareMinus1.childElementCount > 0) ||
+                    (startId + width + 1 === targetId && targetSquarePlus1 && targetSquarePlus1.childElementCount > 0)
                 ) {
                     return true;
                 }
             } else {
                 // Black pawns move forward only
                 if (
-                    (starterRow.includes(startId) && startId + width * 2 === targetId) ||
-                    startId + width === targetId ||
-                    (startId + width - 1 === targetId && document.querySelector(`[square-id="${startId + width - 1}"]`)?.firstChild) ||
-                    (startId + width + 1 === targetId && document.querySelector(`[square-id="${startId + width + 1}"]`)?.firstChild)
+                    (starterRow.includes(startId) && startId + width * 2 === targetId && !targetSquare.childElementCount && !document.querySelector(`[square-id="${startId + width}"]`).childElementCount) ||
+                    startId + width === targetId && !targetSquare.childElementCount ||
+                    (startId + width - 1 === targetId && targetSquareMinus1 && targetSquareMinus1.childElementCount > 0) ||
+                    (startId + width + 1 === targetId && targetSquarePlus1 && targetSquarePlus1.childElementCount > 0)
                 ) {
                     return true;
                 }
@@ -297,15 +302,15 @@ function checkIfValid(target) {
             // Castling
             if (!kingMoved[playerGo] && !inCheck(playerGo)) {
                 if (targetId === startId + 2 && !rookMoved[playerGo][1] &&
-                    !document.querySelector(`[square-id="${startId + 1}"]`)?.firstChild &&
-                    !document.querySelector(`[square-id="${startId + 2}"]`)?.firstChild &&
+                    !document.querySelector(`[square-id="${startId + 1}"]`)?.childElementCount &&
+                    !document.querySelector(`[square-id="${startId + 2}"]`)?.childElementCount &&
                     !inCheck(playerGo, startId + 1) && !inCheck(playerGo, startId + 2)) {
                     return 'castling-right';
                 }
                 if (targetId === startId - 2 && !rookMoved[playerGo][0] &&
-                    !document.querySelector(`[square-id="${startId - 1}"]`)?.firstChild &&
-                    !document.querySelector(`[square-id="${startId - 2}"]`)?.firstChild &&
-                    !document.querySelector(`[square-id="${startId - 3}"]`)?.firstChild &&
+                    !document.querySelector(`[square-id="${startId - 1}"]`)?.childElementCount &&
+                    !document.querySelector(`[square-id="${startId - 2}"]`)?.childElementCount &&
+                    !document.querySelector(`[square-id="${startId - 3}"]`)?.childElementCount &&
                     !inCheck(playerGo, startId - 1) && !inCheck(playerGo, startId - 2)) {
                     return 'castling-left';
                 }
@@ -383,12 +388,13 @@ function checkForWin() {
     }
 }
 
-// Checks if Bishops path is blocked
+// Checks if Bishop's path is blocked
 function isPathBlockedBishop(startId, targetId) {
     const step = (Math.abs(startId - targetId) % (width + 1) === 0) ? (width + 1) : (width - 1);
     let currentId = startId < targetId ? startId + step : startId - step;
     while (currentId !== targetId) {
-        if (document.querySelector(`[square-id="${currentId}"]`)?.firstChild) {
+        const currentSquare = document.querySelector(`[square-id="${currentId}"]`);
+        if (currentSquare && currentSquare.childElementCount > 0) {
             return true;
         }
         currentId = startId < targetId ? currentId + step : currentId - step;
@@ -396,7 +402,7 @@ function isPathBlockedBishop(startId, targetId) {
     return false;
 }
 
-// Checks if Rooks path is blocked
+// Checks if Rook's path is blocked
 function isPathBlockedRook(startId, targetId) {
     let step;
     if (Math.abs(startId - targetId) % width === 0) {
@@ -406,7 +412,8 @@ function isPathBlockedRook(startId, targetId) {
     }
     let currentId = startId + step;
     while (currentId !== targetId) {
-        if (document.querySelector(`[square-id="${currentId}"]`)?.firstChild) {
+        const currentSquare = document.querySelector(`[square-id="${currentId}"]`);
+        if (currentSquare && currentSquare.childElementCount > 0) {
             return true;
         }
         currentId += step;
@@ -414,7 +421,7 @@ function isPathBlockedRook(startId, targetId) {
     return false;
 }
 
-// Checks if Queens path is blocked
+// Checks if Queen's path is blocked
 function isPathBlockedQueen(startId, targetId) {
     if (Math.abs(startId - targetId) % width === 0 || Math.floor(startId / width) === Math.floor(targetId / width)) {
         return isPathBlockedRook(startId, targetId);
@@ -604,6 +611,7 @@ function promotePawn(pieceType, targetId) {
     parentSquare.appendChild(newPiece);
     addDragAndDropListeners(newPiece); // Ensure the promoted piece is capturable
     checkForWin();
+    changePlayer();
 }
 
 function hidePromotionModal() {
