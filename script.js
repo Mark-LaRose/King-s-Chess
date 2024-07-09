@@ -246,13 +246,17 @@ function checkIfValid(target) {
             }
             break;
         case 'queen':
+            const diffQueen = Math.abs(startId - targetId);
             if (
-                ((Math.abs(startId - targetId) % (width + 1) === 0 || Math.abs(startId - targetId) % (width - 1) === 0) &&
-                !isPathBlockedBishop(startId, targetId)) ||
-                (startId + width === targetId) ||
-                (startId - width === targetId) ||
-                (startId + 1 === targetId) ||
-                (startId - 1 === targetId)
+                (
+                    (diffQueen % (width + 1) === 0 || diffQueen % (width - 1) === 0) &&
+                    !isPathBlockedBishop(startId, targetId)
+                ) ||
+                (
+                    ((Math.abs(startId - targetId) % width === 0) ||
+                    (Math.floor(startId / width) === Math.floor(targetId / width))) &&
+                    !isPathBlockedRook(startId, targetId)
+                )
             ) {
                 return true;
             }
